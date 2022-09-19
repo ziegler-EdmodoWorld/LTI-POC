@@ -1,0 +1,11 @@
+<form id="auto_submit" action={{ .RedirectUri }} method="POST">
+    <input type="hidden" name="id_token" value={{ .Jwt }} />
+    <input type="hidden" name="state" value={{ .State }} />
+    <input type="hidden" name="iss" value={{ .Iss }}/>
+    <input type="hidden" name="login_hint" value={{ .UserId }} />
+    <input type="hidden" name="target_link_uri" value={{ .TargetLink }} />
+    <input type="hidden" name="lti_message_hint" value={{ .BookId }} />
+</form>
+<script>
+    document.getElementById('auto_submit').submit();
+</script>
