@@ -80,19 +80,13 @@ func GetLaunchContextKey() launch.ContextKeyType {
 
 // LaunchIDFromContext takes the context of an *http.Request (after a successful launch), and it returns the launch ID
 // that was attached to that context.
-func LaunchIDFromContext(ctx context.Context) string {
-	launchID := ctx.Value(GetLaunchContextKey())
-	if launchID == nil {
-		return ""
+func LaunchCtxFromContext(ctx context.Context) launch.LaunchContext {
+	v := ctx.Value(GetLaunchContextKey())
+	if v == nil {
+		return launch.LaunchContext{}
 	}
 
-	return launchID.(string)
-}
-
-// LaunchIDFromRequest takes an *http.Request (after a successful launch), and it returns the launch ID that was
-// attached to that request.
-func LaunchIDFromRequest(r *http.Request) string {
-	return LaunchIDFromContext(r.Context())
+	return v.(launch.LaunchContext)
 }
 
 // NewConnector returns a *connector.Connector (on success) that can be used for accessing LTI services. These services

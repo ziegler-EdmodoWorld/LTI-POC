@@ -77,9 +77,21 @@ func postLaunchHandler(datastoreConfig datastore.Config) http.HandlerFunc {
 		//	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		//	return
 		//}
+		lc := lti.LaunchCtxFromContext(r.Context())
+		if pre, ok := lc.Token.Get("https://purl.imsglobal.org/spec/lti/claim/launch_presentation");ok {
+			if lp, ok := pre.(map[string]interface{});ok {
+				docTarget := lp["document_target"]
+				if docTarget == "iframe" {
+					fmt.Fprintf(w, `<p>This is the iframe launch!</p>
+<p>Launch ID from request: %s</p>`, lc.LaunchId)
+					return
+				}
+			}
+
+		}
 
 		fmt.Fprintf(w, `<p>Launch successful!</p>
-<p>Launch ID from request: %s</p>`, lti.LaunchIDFromRequest(r))
+<p>Launch ID from request: %s</p>`, lc.LaunchId)
 //
 //		fmt.Fprintf(w, `<p>Launch successful!</p>
 //<p>Launch ID from request: %s</p>

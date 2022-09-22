@@ -131,7 +131,7 @@ func (l *Launch) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	l.cfg.LaunchData.StoreLaunchData(launchID, launchData)
 
 	// Put the launch ID in the request context for subsequent handlers.
-	r = r.WithContext(contextWithLaunchID(r.Context(), launchID))
+	r = r.WithContext(contextWithLaunchID(r.Context(), LaunchContext{launchID, verifiedToken}))
 
 	l.next(w, r)
 }
@@ -352,9 +352,14 @@ func contains(n string, s []string) bool {
 	return false
 }
 
+type LaunchContext struct {
+	LaunchId string
+	Token jwt.Token
+}
+
 // contextWithLaunchID puts the launch ID into the given context.
-func contextWithLaunchID(ctx context.Context, launchID string) context.Context {
+func contextWithLaunchID(ctx context.Context, lc LaunchContext) context.Context {
 	key := ContextKey
 
-	return context.WithValue(ctx, key, launchID)
+	return context.WithValue(ctx, key, lc)
 }

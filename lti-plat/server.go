@@ -52,12 +52,12 @@ func auth(ctx *gin.Context) {
 
 	ctx.HTML(http.StatusOK, "launch.html", gin.H{
 		"RedirectUri": redirectUri,
-		"Jwt": pkg.IdToken(clientId, username, nonce, resId),
-		"State": state,
-		"Iss": "https://edmodoworld.com",
-		"TargetLink": redirectUri,
-		"UserId": username,
-		"BookId": resId,
+		"Jwt":         pkg.IdToken(clientId, username, nonce, resId),
+		"State":       state,
+		"Iss":         pkg.ISSUER,
+		"TargetLink":  redirectUri,
+		"UserId":      username,
+		"BookId":      resId,
 	})
 }
 
@@ -68,6 +68,3 @@ func token(ctx *gin.Context) {
 func certs(ctx *gin.Context) {
 	ctx.Data(http.StatusOK, "text", []byte(pkg.PublicKey))
 }
-
-
-

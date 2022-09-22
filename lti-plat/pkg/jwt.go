@@ -10,41 +10,42 @@ import (
 )
 
 type LTIContext struct {
-	Id string `json:"id"`
-	Label string `json:"label"`
-	Title string `json:"title"`
-	Type []string `json:"type"`
+	Id    string   `json:"id"`
+	Label string   `json:"label"`
+	Title string   `json:"title"`
+	Type  []string `json:"type"`
 }
 
 type LTIResourceLink struct {
-	Id string `json:"id"`
+	Id          string `json:"id"`
 	Description string `json:"description"`
-	Title string `json:"title"`
+	Title       string `json:"title"`
 }
 
 type LTILaunchPresentation struct {
 	DocumentTarget string `json:"document_target"`
-	Height int8 `json:"height"`
-	Width int8 `json:"width"`
-	ReturnUrl string `json:"return_url"`
+	Height         int8   `json:"height"`
+	Width          int8   `json:"width"`
+	ReturnUrl      string `json:"return_url"`
 }
 
 type LTIClaims struct {
 	jwt.Claims
-	Nonce string `json:"nonce"`
-	DeploymentId string `json:"https://purl.imsglobal.org/spec/lti/claim/deployment_id"`
-	MessageType string `json:"https://purl.imsglobal.org/spec/lti/claim/message_type"`
-	Roles []string `json:"https://purl.imsglobal.org/spec/lti/claim/roles"`
-	Context LTIContext `json:"https://purl.imsglobal.org/spec/lti/claim/context"`
-	ResourceLink LTIResourceLink `json:"https://purl.imsglobal.org/spec/lti/claim/resource_link"`
-	TargetLink string `json:"https://purl.imsglobal.org/spec/lti/claim/target_link_uri"`
+	Nonce              string                `json:"nonce"`
+	DeploymentId       string                `json:"https://purl.imsglobal.org/spec/lti/claim/deployment_id"`
+	MessageType        string                `json:"https://purl.imsglobal.org/spec/lti/claim/message_type"`
+	Roles              []string              `json:"https://purl.imsglobal.org/spec/lti/claim/roles"`
+	Context            LTIContext            `json:"https://purl.imsglobal.org/spec/lti/claim/context"`
+	ResourceLink       LTIResourceLink       `json:"https://purl.imsglobal.org/spec/lti/claim/resource_link"`
+	TargetLink         string                `json:"https://purl.imsglobal.org/spec/lti/claim/target_link_uri"`
 	LaunchPresentation LTILaunchPresentation `json:"https://purl.imsglobal.org/spec/lti/claim/launch_presentation""`
-	CustomClaim map[string]string `json:"https://purl.imsglobal.org/spec/lti/claim/custom"`
-	Version string `json:"https://purl.imsglobal.org/spec/lti/claim/version"`
+	CustomClaim        map[string]string     `json:"https://purl.imsglobal.org/spec/lti/claim/custom"`
+	Version            string                `json:"https://purl.imsglobal.org/spec/lti/claim/version"`
 }
 
 var privateKey *rsa.PrivateKey
 var publicKey *rsa.PublicKey
+
 func init() {
 	var err error
 	privateKey, err = jwt.ParsePrivateKeyRSA([]byte(PrivateKey))
@@ -59,24 +60,27 @@ func init() {
 
 func IdToken(clientId, userId, nonce, resId string) string {
 	claims := LTIClaims{
-		Claims: jwt.Claims {
+		Claims: jwt.Claims{
 			IssuedAt: time.Now().Unix(),
-			Expiry: time.Now().Add(24 * time.Hour).Unix(),
-			ID: uuid.New().String(),
-			Issuer: "https://edmodoworld.com",
+			Expiry:   time.Now().Add(24 * time.Hour).Unix(),
+			ID:       uuid.New().String(),
+			Issuer:   ISSUER,
 			Audience: jwt.Audience{clientId},
-			Subject: userId,
+			Subject:  userId,
 		},
-		Nonce: nonce,
-		TargetLink: "http://localhost:9000/launch",
+		Nonce:        nonce,
+		TargetLink:   "http://localhost:9000/launch",
 		DeploymentId: "1",
-		MessageType: "LtiResourceLinkRequest",
-		Version: "1.3.0",
+		MessageType:  "LtiResourceLinkRequest",
+		Version:      "1.3.0",
 		CustomClaim: map[string]string{
 			"Foo": "bar",
 		},
 		ResourceLink: LTIResourceLink{
 			Id: resId,
+		},
+		LaunchPresentation: LTILaunchPresentation{
+			DocumentTarget: "iframe",
 		},
 	}
 	t, _ := jwt.Sign(jwt.RS256, privateKey, claims)
